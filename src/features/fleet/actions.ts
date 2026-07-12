@@ -1,1 +1,4 @@
-"use server";`n`n// Server actions placeholder for feature
+"use server";
+
+// Server actions placeholder for fleet
+export async function getVehicles() {}

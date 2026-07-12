@@ -228,7 +228,86 @@ async function main() {
     },
   });
 
-  console.log("Settings and initial logs created.");
+  // 8. Create mock trips for dashboard display
+  const trip1 = await prisma.trip.create({
+    data: {
+      source: "Gandhinagar Depot",
+      destination: "Ahmedabad Hub",
+      vehicleId: vehicle1.id,
+      driverId: driver1.id,
+      cargoWeight: 450.0,
+      plannedDistance: 38.0,
+      status: "On Trip",
+      eta: "45 min",
+      createdById: dispatcher.id,
+    },
+  });
+
+  const trip2 = await prisma.trip.create({
+    data: {
+      source: "Vatva Industrial Area",
+      destination: "Sanand Warehouse",
+      vehicleId: vehicle2.id,
+      driverId: driver2.id,
+      cargoWeight: 2500.0,
+      plannedDistance: 45.0,
+      status: "Completed",
+      finalOdometer: 182100.0,
+      fuelConsumed: 12.0,
+      createdById: dispatcher.id,
+    },
+  });
+
+  const trip3 = await prisma.trip.create({
+    data: {
+      source: "Mansa",
+      destination: "Kalol Depot",
+      vehicleId: vehicle3.id,
+      driverId: driver3.id,
+      cargoWeight: 800.0,
+      plannedDistance: 15.0,
+      status: "Dispatched",
+      eta: "1h 10m",
+      createdById: dispatcher.id,
+    },
+  });
+
+  const trip4 = await prisma.trip.create({
+    data: {
+      source: "Gandhinagar Depot",
+      destination: "Surat Hub",
+      vehicleId: null,
+      driverId: null,
+      cargoWeight: 0.0,
+      plannedDistance: 280.0,
+      status: "Draft",
+      eta: "Awaiting vehicle",
+      createdById: dispatcher.id,
+    },
+  });
+
+  // Create mock expenses for trip1 and trip2
+  await prisma.expense.create({
+    data: {
+      tripId: trip1.id,
+      toll: 120.0,
+      other: 0.0,
+      maintenanceLinked: 0.0,
+      total: 120.0,
+    },
+  });
+
+  await prisma.expense.create({
+    data: {
+      tripId: trip2.id,
+      toll: 340.0,
+      other: 150.0,
+      maintenanceLinked: 18000.0, // Linked from completed maintenance record
+      total: 18490.0,
+    },
+  });
+
+  console.log("Settings, mock trips, expenses, and initial logs created.");
   console.log("Seeding successfully completed!");
 }
 

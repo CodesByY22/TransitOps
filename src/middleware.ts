@@ -1,1 +1,10 @@
-import { NextResponse } from "next/server";`nimport type { NextRequest } from "next/server";`n`nexport function middleware(request: NextRequest) {`n  return NextResponse.next();`n}`n`nexport const config = {`n  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],`n};
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export function middleware(request: NextRequest) {
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
