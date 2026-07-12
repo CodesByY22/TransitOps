@@ -33,7 +33,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
     },
   });
 
-  // 2. Filter Vehicles dynamically based on dropdown values
+  // 2. Filter Vehicles dynamically based on type, status, and region dropdowns
   const filteredVehicles = rawVehicles.filter((vehicle) => {
     const matchesType = typeFilter === "All" || vehicle.type === typeFilter;
     const matchesStatus = statusFilter === "All" || vehicle.status === statusFilter;
@@ -41,7 +41,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
     return matchesType && matchesStatus && matchesRegion;
   });
 
-  // Filter Trips dynamically based on dropdown values, region, and search query
+  // Filter Trips dynamically based on type, status, region, and search query
   const filteredTrips = allTrips.filter((trip) => {
     const matchesType = typeFilter === "All" || trip.vehicle?.type === typeFilter;
     const matchesStatus = statusFilter === "All" || trip.status === statusFilter || trip.vehicle?.status === statusFilter;
@@ -99,145 +99,144 @@ export default async function DashboardPage(props: DashboardPageProps) {
 
   return (
     <SidebarLayout activeTab="dashboard">
-      <div className="p-8 max-w-7xl mx-auto space-y-8 bg-[#09090b] min-h-full">
-        {/* Top Header Row */}
-        <div className="flex items-center justify-between">
+      <div className="p-8 max-w-7xl mx-auto space-y-6 bg-[#09090b]">
+        {/* Title */}
+        <div className="flex items-center justify-between border-b border-zinc-900 pb-5">
           <div>
             <h2 className="text-xl font-bold text-zinc-100 tracking-tight">Operations Dashboard</h2>
             <p className="text-xs text-zinc-500 mt-1">Real-time status updates and fleet operations control</p>
           </div>
-          <div className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div className="text-[10px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded">
             System Live
           </div>
         </div>
 
-        {/* Filters */}
+        {/* Dynamic Filters Component */}
         <DashboardFilters />
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {/* Active Vehicles */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Active Vehicles</span>
-              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{activeVehiclesCount}</span>
-              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Currently on route</p>
+              <span className="text-2xl font-bold text-white tracking-tight">{activeVehiclesCount}</span>
+              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">On transit routes</p>
             </div>
           </div>
 
           {/* Available Vehicles */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Available</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{availableVehiclesCount}</span>
-              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Ready for dispatch</p>
+              <span className="text-2xl font-bold text-white tracking-tight">{availableVehiclesCount}</span>
+              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Ready to dispatch</p>
             </div>
           </div>
 
           {/* Vehicles in Maintenance */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">In Shop</span>
-              <span className="h-2 w-2 rounded-full bg-amber-500"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{inMaintenanceCount}</span>
+              <span className="text-2xl font-bold text-white tracking-tight">{inMaintenanceCount}</span>
               <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Undergoing service</p>
             </div>
           </div>
 
           {/* Active Trips */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Active Trips</span>
-              <span className="h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-sky-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{activeTripsCount}</span>
-              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">In transit</p>
+              <span className="text-2xl font-bold text-white tracking-tight">{activeTripsCount}</span>
+              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Trips in progress</p>
             </div>
           </div>
 
           {/* Pending Trips */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Pending</span>
-              <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{pendingTripsCount}</span>
-              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Draft layouts</p>
+              <span className="text-2xl font-bold text-white tracking-tight">{pendingTripsCount}</span>
+              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Drafted trip plans</p>
             </div>
           </div>
 
           {/* Drivers On Duty */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Drivers Duty</span>
-              <span className="h-2 w-2 rounded-full bg-teal-500"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{driversOnDutyCount}</span>
+              <span className="text-2xl font-bold text-white tracking-tight">{driversOnDutyCount}</span>
               <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Active on shift</p>
             </div>
           </div>
 
           {/* Fleet Utilization */}
-          <div className="bg-[#09090b] border border-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] rounded-xl p-4 flex flex-col justify-between h-28 hover:border-zinc-700 transition">
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-4 flex flex-col justify-between h-28">
             <div className="flex justify-between items-center text-zinc-400">
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono">Utilization</span>
-              <span className="h-2 w-2 rounded-full bg-purple-500"></span>
+              <span className="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-white tracking-tight">{utilizationPercentage}%</span>
-              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Active / total</p>
+              <span className="text-2xl font-bold text-white tracking-tight">{utilizationPercentage}%</span>
+              <p className="text-[9px] text-zinc-500 mt-0.5 font-mono">Active / total fleet</p>
             </div>
           </div>
         </div>
 
-        {/* Split Grid */}
+        {/* Lower Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Live Board / Trips Table */}
-          <div className="bg-[#09090b] border border-[#18181b] rounded-xl p-6 lg:col-span-2 space-y-6">
+          {/* Live Board Trips Table */}
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-6 lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-zinc-100 uppercase tracking-wider font-mono">Live Operations Board</h3>
                 <p className="text-xs text-zinc-500 mt-1">Real-time status updates from active trips</p>
               </div>
               <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">
-                {filteredTrips.slice(0, 5).length} of {filteredTrips.length} units
+                Showing {filteredTrips.slice(0, 5).length} of {filteredTrips.length} units
               </span>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-[#18181b]">
+            <div className="overflow-x-auto rounded-lg border border-zinc-900">
               <table className="w-full text-left text-xs text-zinc-400 border-collapse">
-                <thead className="text-[9px] uppercase font-bold tracking-wider text-zinc-500 bg-[#0c0c0e] border-b border-[#18181b]">
+                <thead className="text-[9px] uppercase font-bold tracking-wider text-zinc-500 bg-[#0c0c0e] border-b border-zinc-900">
                   <tr>
                     <th className="py-3 px-4">Trip</th>
-                    <th className="py-3 px-4">Route</th>
-                    <th className="py-3 px-4">Vehicle</th>
-                    <th className="py-3 px-4">Driver</th>
+                    <th className="py-3 px-4">Route Info</th>
+                    <th className="py-3 px-4">Assigned Vehicle</th>
+                    <th className="py-3 px-4">Assigned Driver</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4 text-right">ETA</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#18181b] bg-zinc-950/10">
+                <tbody className="divide-y divide-zinc-900 bg-zinc-950/10">
                   {filteredTrips.slice(0, 5).map((trip) => {
                     const tripId = `TR${String(trip.id).padStart(3, "0")}`;
                     
                     // Styled Status Badges
-                    let statusColor = "text-zinc-400 bg-zinc-800/40 border-zinc-800";
+                    let statusColor = "text-zinc-400 bg-zinc-800/40 border-zinc-850";
                     let dotColor = "bg-zinc-500";
                     if (trip.status === "On Trip") {
                       statusColor = "text-blue-400 bg-blue-500/5 border-blue-500/20";
-                      dotColor = "bg-blue-400 animate-pulse";
+                      dotColor = "bg-blue-400";
                     } else if (trip.status === "Completed") {
                       statusColor = "text-emerald-400 bg-emerald-500/5 border-emerald-500/20";
                       dotColor = "bg-emerald-400";
@@ -277,7 +276,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                           )}
                         </td>
                         <td className="py-3.5 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide border ${statusColor}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide border ${statusColor}`}>
                             <span className={`h-1 w-1 rounded-full ${dotColor} mr-1.5`}></span>
                             {trip.status}
                           </span>
@@ -294,8 +293,8 @@ export default async function DashboardPage(props: DashboardPageProps) {
 
             {/* Empty State Component */}
             {filteredTrips.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 px-4 border border-dashed border-[#18181b] rounded-xl space-y-3">
-                <div className="h-10 w-10 rounded-full bg-zinc-950 flex items-center justify-center text-zinc-600 border border-[#18181b]">
+              <div className="flex flex-col items-center justify-center py-12 px-4 border border-dashed border-zinc-900 rounded-xl space-y-3">
+                <div className="h-10 w-10 rounded-full bg-zinc-950 flex items-center justify-center border border-zinc-900 text-zinc-600">
                   <SearchX className="h-5 w-5" />
                 </div>
                 <div className="text-center">
@@ -306,8 +305,8 @@ export default async function DashboardPage(props: DashboardPageProps) {
             )}
           </div>
 
-          {/* Vehicle Status Distribution Bars */}
-          <div className="bg-[#09090b] border border-[#18181b] rounded-xl p-6 space-y-6">
+          {/* Right Distribution Sidebar */}
+          <div className="bg-[#09090b] border border-zinc-900 rounded-xl p-6 space-y-6 self-start">
             <div>
               <h3 className="text-sm font-bold text-zinc-100 uppercase tracking-wider font-mono">Fleet Distribution</h3>
               <p className="text-xs text-zinc-500 mt-1">Status distribution of filtered fleet</p>
@@ -320,7 +319,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                   <span className="text-zinc-400">Available</span>
                   <span className="text-zinc-200">{statusCounts.Available}</span>
                 </div>
-                <div className="w-full bg-zinc-950 h-1.5 rounded-full overflow-hidden border border-[#18181b]">
+                <div className="w-full bg-zinc-950 h-1.5 rounded-full overflow-hidden border border-zinc-900">
                   <div
                     className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${(statusCounts.Available / maxStatusCount) * 100}%` }}
@@ -334,7 +333,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                   <span className="text-zinc-400">On Trip</span>
                   <span className="text-zinc-200">{statusCounts.OnTrip}</span>
                 </div>
-                <div className="w-full bg-zinc-950 h-1.5 rounded-full overflow-hidden border border-[#18181b]">
+                <div className="w-full bg-zinc-950 h-1.5 rounded-full overflow-hidden border border-zinc-900">
                   <div
                     className="bg-blue-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${(statusCounts.OnTrip / maxStatusCount) * 100}%` }}
@@ -372,9 +371,9 @@ export default async function DashboardPage(props: DashboardPageProps) {
             </div>
 
             {/* Config summary card */}
-            <div className="p-4 bg-zinc-950 border border-[#18181b] rounded-xl space-y-1.5">
+            <div className="p-4 bg-zinc-950 border border-zinc-900 rounded-xl space-y-1.5">
               <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider font-mono">Summary</h4>
-              <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">
+              <p className="text-[11px] text-zinc-500 leading-relaxed font-semibold">
                 Out of {rawVehicles.length} total registered vehicles, {totalVehiclesCount} are active in your fleet service. Fleet utilization is at {utilizationPercentage}%.
               </p>
             </div>
