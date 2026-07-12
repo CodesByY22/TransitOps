@@ -40,6 +40,11 @@ interface AnalyticsData {
 
 export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Trigger PDF print
   const handlePrintPDF = () => {
@@ -154,7 +159,7 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
       {/* Print-Only Header */}
       <div className="hidden print:block border-b-2 border-slate-900 pb-4 mb-6">
         <h1 className="text-3xl font-black text-slate-900">TransitOps Business Intelligence Report</h1>
-        <p className="text-xs text-slate-500 mt-1">Generated on: {new Date().toLocaleString()} | Gandhinagar Depot</p>
+        <p className="text-xs text-slate-500 mt-1">Generated on: {mounted ? new Date().toLocaleString() : ""} | Gandhinagar Depot</p>
       </div>
 
       {/* KPI Stats Row */}
