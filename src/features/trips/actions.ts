@@ -270,3 +270,72 @@ export async function advanceTripStatus(
     return { success: false, error: "Database transaction error occurred." };
   }
 }
+
+export async function dispatchDraftTrip(
+  tripId: number,
+  vehicleId: number,
+  driverId: number,
+  eta: string
+): Promise<TripActionState> {
+  try {
+    const trip = await prisma.trip.findUnique({
+      where: { id: tripId },
+    });
+
+    if (!trip) {
+      return { success: false, error: "Trip not found." };
+    }
+
+    const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    if (!vehicle) {
+      return { success: false, error: "Vehicle not found." };
+    }
+    if (vehicle.status !== "Available") {
+      return { success: false, error: `Vehicle is currently unavailable (Status: ${vehicle.status}).` };
+    }
+    if (trip.cargoWeight > vehicle.maxCapacity) {
+      return { success: false, error: `Cargo weight (${trip.cargoWeight} kg) exceeds vehicle capacity (${vehicle.maxCapacity} kg).` };
+    }
+
+    const driver = await prisma.driver.findUnique({ where: { id: driverId } });
+    if (!driver) {
+      return { success: false, error: "Driver not found." };
+    }
+    if (driver.activeStatus !== "Available") {
+      return { success: false, error: "Driver is currently active on another trip." };
+    }
+    if (driver.safetyComplianceStatus === "Suspended") {
+      return { success: false, error: "Selected driver is suspended." };
+    }
+    if (new Date(driver.licenseExpiry) <= new Date()) {
+      return { success: false, error: "Selected driver has an expired driving license." };
+    }
+
+    await prisma.$transaction([
+      prisma.trip.update({
+        where: { id: tripId },
+        data: {
+          vehicleId,
+          driverId,
+          status: "Dispatched",
+          eta: eta || "Awaiting dispatch",
+        },
+      }),
+      prisma.vehicle.update({
+        where: { id: vehicleId },
+        data: { status: "On Trip" },
+      }),
+      prisma.driver.update({
+        where: { id: driverId },
+        data: { activeStatus: "On Trip" },
+      }),
+    ]);
+
+    revalidatePath("/trips");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to dispatch draft trip:", error);
+    return { success: false, error: "Database transaction error occurred during dispatch." };
+  }
+}

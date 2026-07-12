@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition, useEffect } from "react";
-import { createTrip, dispatchTrip, advanceTripStatus, TripActionState } from "@/features/trips/actions";
+import { createTrip, dispatchTrip, advanceTripStatus, dispatchDraftTrip, TripActionState } from "@/features/trips/actions";
 import { useToast } from "@/components/Toast";
 import {
   Route,
@@ -41,6 +41,7 @@ interface Driver {
   licenseExpiry: Date;
   activeStatus: string;
   safetyComplianceStatus: string;
+  licenseCategory?: string;
 }
 
 interface Trip {
@@ -88,6 +89,14 @@ export default function TripsClient({
   const [finalOdometerVal, setFinalOdometerVal] = useState<number>(0);
   const [fuelConsumedVal, setFuelConsumedVal] = useState<number>(0);
   const [completeError, setCompleteError] = useState<string | null>(null);
+
+  // Assign Draft Dialog Modal State
+  const [assignDraftDialogOpen, setAssignDraftDialogOpen] = useState(false);
+  const [assigningTrip, setAssigningTrip] = useState<Trip | null>(null);
+  const [draftVehicleId, setDraftVehicleId] = useState<string>("");
+  const [draftDriverId, setDraftDriverId] = useState<string>("");
+  const [draftEta, setDraftEta] = useState<string>("");
+  const [assignError, setAssignError] = useState<string | null>(null);
 
   // Monitor cargo weight relative to selected vehicle capacity
   useEffect(() => {
@@ -208,6 +217,40 @@ export default function TripsClient({
         window.location.reload();
       } else {
         setCompleteError(res.error || "An error occurred.");
+      }
+    });
+  };
+
+  const openAssignDraftDialog = (trip: Trip) => {
+    setAssigningTrip(trip);
+    setDraftVehicleId("");
+    setDraftDriverId("");
+    setDraftEta("45 min");
+    setAssignError(null);
+    setAssignDraftDialogOpen(true);
+  };
+
+  const handleAssignDraftSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assigningTrip || !draftVehicleId || !draftDriverId) {
+      setAssignError("Please select both a vehicle and a driver.");
+      return;
+    }
+
+    setAssignError(null);
+    startTransition(async () => {
+      const res = await dispatchDraftTrip(
+        assigningTrip.id,
+        parseInt(draftVehicleId),
+        parseInt(draftDriverId),
+        draftEta
+      );
+      if (res.success) {
+        showToast("success", "Trip Dispatched", "Fleet resources assigned and trip dispatched.");
+        setAssignDraftDialogOpen(false);
+        window.location.reload();
+      } else {
+        setAssignError(res.error || "An error occurred.");
       }
     });
   };
@@ -399,14 +442,23 @@ export default function TripsClient({
                       </button>
 
                       {trip.status === "Draft" && (
-                        <button
-                          onClick={() => handleDispatch(trip.id)}
-                          disabled={!trip.vehicleId || !trip.driverId}
-                          className="h-8.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-bold transition-colors shadow-md shadow-blue-500/10 flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          <Send className="h-3.5 w-3.5" />
-                          Dispatch Trip
-                        </button>
+                        trip.vehicleId && trip.driverId ? (
+                          <button
+                            onClick={() => handleDispatch(trip.id)}
+                            className="h-8.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-bold transition-colors shadow-md shadow-blue-500/10 flex items-center gap-1 cursor-pointer"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            Dispatch Trip
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => openAssignDraftDialog(trip)}
+                            className="h-8.5 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-[10px] font-bold transition-colors shadow-md shadow-teal-500/10 flex items-center gap-1 cursor-pointer"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            Assign & Dispatch
+                          </button>
+                        )
                       )}
 
                       {trip.status === "Dispatched" && (
@@ -657,6 +709,119 @@ export default function TripsClient({
                   className="h-9 px-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-colors shadow-md shadow-emerald-500/10 cursor-pointer disabled:opacity-50"
                 >
                   {isPending ? "Processing..." : "Complete & Log"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Resources Dialog Modal */}
+      {assignDraftDialogOpen && assigningTrip && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl transition-colors overflow-hidden">
+            <form onSubmit={handleAssignDraftSubmit} className="flex flex-col">
+              <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-950/20">
+                <div>
+                  <h3 className="text-xs font-black text-slate-800 dark:text-zinc-200 uppercase tracking-wider">Assign & Dispatch</h3>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Assign resources to TR{String(assigningTrip.id).padStart(3, "0")}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAssignDraftDialogOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-4">
+                {assignError && (
+                  <div className="p-3 bg-rose-50 dark:bg-rose-500/5 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-bold flex items-center gap-2 rounded-xl">
+                    <AlertTriangle className="h-4.5 w-4.5 shrink-0" />
+                    {assignError}
+                  </div>
+                )}
+
+                <div className="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                  Route: <span className="text-slate-800 dark:text-zinc-200 font-bold">{assigningTrip.source} ➔ {assigningTrip.destination}</span> ({assigningTrip.plannedDistance} km)
+                  <br />
+                  Cargo: <span className="text-slate-800 dark:text-zinc-200 font-bold">{assigningTrip.cargoWeight} kg</span>
+                </div>
+
+                {/* Vehicle Selector */}
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase text-slate-650 dark:text-zinc-400 tracking-wider">Select Vehicle</label>
+                  <select
+                    value={draftVehicleId}
+                    onChange={(e) => setDraftVehicleId(e.target.value)}
+                    required
+                    className="w-full h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 text-xs text-slate-950 dark:text-zinc-100 focus:outline-none focus:border-blue-500 font-bold"
+                  >
+                    <option value="">-- Choose Available Vehicle --</option>
+                    {vehicles.map((v) => {
+                      const isAvailable = v.status === "Available";
+                      const hasCapacity = v.maxCapacity >= assigningTrip.cargoWeight;
+                      return (
+                        <option key={v.id} value={v.id} disabled={!isAvailable || !hasCapacity}>
+                          {v.model} ({v.registrationNumber}) - Cap: {v.maxCapacity}kg {!hasCapacity ? "[Weight Limit Exceeded]" : !isAvailable ? `[${v.status}]` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Driver Selector */}
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase text-slate-650 dark:text-zinc-400 tracking-wider">Select Driver</label>
+                  <select
+                    value={draftDriverId}
+                    onChange={(e) => setDraftDriverId(e.target.value)}
+                    required
+                    className="w-full h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 text-xs text-slate-950 dark:text-zinc-100 focus:outline-none focus:border-blue-500 font-bold"
+                  >
+                    <option value="">-- Choose Available Driver --</option>
+                    {drivers.map((d) => {
+                      const isAvailable = d.activeStatus === "Available";
+                      const isSuspended = d.safetyComplianceStatus === "Suspended";
+                      const isExpired = new Date(d.licenseExpiry) <= new Date();
+                      return (
+                        <option key={d.id} value={d.id} disabled={!isAvailable || isSuspended || isExpired}>
+                          {d.name} ({d.licenseCategory}) {isSuspended ? "[Suspended]" : isExpired ? "[License Expired]" : !isAvailable ? `[Busy]` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* ETA */}
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase text-slate-650 dark:text-zinc-400 tracking-wider">ETA Duration</label>
+                  <input
+                    type="text"
+                    value={draftEta}
+                    onChange={(e) => setDraftEta(e.target.value)}
+                    placeholder="e.g. 45 min, 1h 30m"
+                    required
+                    className="w-full h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 text-xs text-slate-950 dark:text-zinc-100 focus:outline-none focus:border-blue-500 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-2 bg-slate-50/50 dark:bg-zinc-950/20">
+                <button
+                  type="button"
+                  onClick={() => setAssignDraftDialogOpen(false)}
+                  className="h-9 px-4 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="h-9 px-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-colors shadow-md shadow-blue-500/10 cursor-pointer disabled:opacity-50"
+                >
+                  {isPending ? "Processing..." : "Assign & Dispatch"}
                 </button>
               </div>
             </form>
