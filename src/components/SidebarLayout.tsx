@@ -188,7 +188,7 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
       >
         <div>
           {/* Logo Section */}
-          <div className="p-4 flex items-center justify-between border-b border-slate-200 dark:border-[#1E293B]">
+          <div className={`p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} border-b border-slate-200 dark:border-[#1E293B] relative`}>
             <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden">
               <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center font-black text-lg text-white shrink-0 shadow-md shadow-blue-500/20">
                 T
@@ -201,12 +201,12 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
               )}
             </Link>
 
-            {/* Toggle Collapse Button */}
+            {/* Toggle Collapse Button (Floating on the right border divide) */}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors hidden md:block"
+              className="absolute -right-3.5 top-6 h-7 w-7 bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center rounded-full text-slate-450 hover:text-slate-600 dark:hover:text-zinc-200 shadow-sm hover:shadow-md transition-all z-50 hidden md:flex cursor-pointer"
             >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
             </button>
           </div>
 

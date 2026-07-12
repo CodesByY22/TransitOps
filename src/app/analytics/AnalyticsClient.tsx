@@ -48,22 +48,53 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
 
   // Export CSV
   const handleExportCSV = () => {
-    const headers = ["Vehicle ID", "Model", "ROI (%)", "Fuel Efficiency (km/L)", "Total Expense (₹)"];
-    const rows = data.vehicles.map((v) => [
-      v.registrationNumber,
-      v.model,
-      v.roi,
-      v.fuelEfficiency === 0 ? "N/A" : v.fuelEfficiency,
-      v.totalCost,
-    ]);
+    const csvRows: string[] = [];
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    // Header section
+    csvRows.push("TRANSITOPS BUSINESS INTELLIGENCE REPORT");
+    csvRows.push(`Generated on:,${new Date().toLocaleString()}`);
+    csvRows.push("Depot:,Gandhinagar Depot");
+    csvRows.push("");
 
-    const encodedUri = encodeURI(csvContent);
+    // Section 1: Fleet Summaries
+    csvRows.push("FLEET SUMMARY METRICS");
+    csvRows.push("Metric,Value");
+    csvRows.push(`Fleet Utilization,${data.utilization}%`);
+    csvRows.push(`Avg Safety Score,${data.driverAvgSafety.toFixed(1)}/100`);
+    csvRows.push(`Trip Completion Rate,${data.driverAvgCompletion.toFixed(1)}%`);
+    csvRows.push("");
+
+    // Section 2: Vehicle Performance
+    csvRows.push("VEHICLE PERFORMANCE AUDIT");
+    csvRows.push("Registration Number,Model,ROI (%),Fuel Efficiency (km/L),Total Expense (INR)");
+    data.vehicles.forEach((v) => {
+      csvRows.push([
+        v.registrationNumber,
+        v.model,
+        `${v.roi}%`,
+        v.fuelEfficiency === 0 ? "N/A" : v.fuelEfficiency,
+        v.totalCost,
+      ].join(","));
+    });
+    csvRows.push("");
+
+    // Section 3: Costliest Vehicles Outlay
+    csvRows.push("COSTLIEST FLEET VEHICLES BREAKDOWN");
+    csvRows.push("Registration Number,Model,Total Fuel Cost (₹),Total Maintenance Cost (₹),Aggregated Outlay (₹)");
+    data.costliestVehicles.forEach((v) => {
+      csvRows.push([
+        v.registrationNumber,
+        v.model,
+        v.fuelCost,
+        v.maintenanceCost,
+        v.total,
+      ].join(","));
+    });
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", url);
     link.setAttribute("download", `transitops_fleet_analytics_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
@@ -349,6 +380,52 @@ export default function AnalyticsClient({ data }: { data: AnalyticsData }) {
           </table>
         </div>
       </div>
+
+      {/* Print PDF Stylesheet */}
+      <style>{`
+        @media print {
+          body, html, main, #root, .flex, .flex-col {
+            background: white !important;
+            color: black !important;
+            height: auto !important;
+            overflow: visible !important;
+          }
+          aside, header, button, .print\\:hidden {
+            display: none !important;
+          }
+          .grid {
+            display: block !important;
+            width: 100% !important;
+          }
+          .grid > div {
+            margin-bottom: 2rem !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            background: white !important;
+            border: 1px solid #e2e8f0 !important;
+            color: black !important;
+            box-shadow: none !important;
+          }
+          text {
+            fill: black !important;
+          }
+          circle {
+            stroke: black !important;
+          }
+          path {
+            stroke: #0d9488 !important;
+          }
+          table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+          }
+          th, td {
+            color: black !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            background: white !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
