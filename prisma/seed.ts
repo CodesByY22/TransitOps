@@ -89,7 +89,7 @@ async function main() {
       maxCapacity: 500.0, // kg
       odometer: 74000.0,
       acquisitionCost: 620000.0, // INR
-      status: "Available",
+      status: "On Trip",
       region: "West",
     },
   });
@@ -102,7 +102,7 @@ async function main() {
       maxCapacity: 5000.0, // 5 Ton = 5000kg
       odometer: 182000.0,
       acquisitionCost: 2450000.0,
-      status: "On Trip",
+      status: "Available",
       region: "North",
     },
   });
@@ -115,7 +115,7 @@ async function main() {
       maxCapacity: 1000.0, // 1 Ton = 1000kg
       odometer: 66000.0,
       acquisitionCost: 410000.0,
-      status: "In Shop",
+      status: "On Trip",
       region: "East",
     },
   });
@@ -145,7 +145,7 @@ async function main() {
       contactNumber: "98765xxxxx",
       tripCompletionRate: 96.0,
       safetyComplianceStatus: "Available",
-      activeStatus: "Available",
+      activeStatus: "On Trip",
     },
   });
 
@@ -158,7 +158,7 @@ async function main() {
       contactNumber: "98220xxxxx",
       tripCompletionRate: 81.0,
       safetyComplianceStatus: "Suspended",
-      activeStatus: "Suspended",
+      activeStatus: "Available",
     },
   });
 
@@ -184,7 +184,7 @@ async function main() {
       contactNumber: "97440xxxxx",
       tripCompletionRate: 88.0,
       safetyComplianceStatus: "Available",
-      activeStatus: "Off Duty",
+      activeStatus: "Available",
     },
   });
 

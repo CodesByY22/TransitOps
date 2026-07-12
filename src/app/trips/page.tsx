@@ -1,8 +1,36 @@
-export default function TripsPage() {
+import React from "react";
+import { prisma } from "@/lib/db";
+import TripsClientPage from "./TripsClientPage";
+
+export default async function TripsPage() {
+  // Query datasets directly from Neon Cloud database
+  const vehicles = await prisma.vehicle.findMany({
+    orderBy: {
+      model: "asc",
+    },
+  });
+
+  const drivers = await prisma.driver.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const trips = await prisma.trip.findMany({
+    include: {
+      vehicle: true,
+      driver: true,
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">TripsPage Skeleton</h1>
-      <p className="text-gray-500">This folder is assigned for this feature.</p>
-    </div>
+    <TripsClientPage
+      vehicles={vehicles}
+      drivers={drivers}
+      trips={trips}
+    />
   );
 }
