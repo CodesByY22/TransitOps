@@ -241,7 +241,7 @@ export default function ExpensesClient({
               onClick={() => setActiveTab("fuel")}
               className={`h-9 px-4 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "fuel"
-                  ? "bg-white dark:bg-[#121214] text-slate-900 dark:text-zinc-150 shadow-sm"
+                  ? "bg-white dark:bg-[#070709] text-slate-900 dark:text-zinc-100 shadow-sm"
                   : "text-slate-500 dark:text-zinc-400 hover:text-slate-800"
               }`}
             >
@@ -251,7 +251,7 @@ export default function ExpensesClient({
               onClick={() => setActiveTab("expense")}
               className={`h-9 px-4 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "expense"
-                  ? "bg-white dark:bg-[#121214] text-slate-900 dark:text-zinc-150 shadow-sm"
+                  ? "bg-white dark:bg-[#070709] text-slate-900 dark:text-zinc-100 shadow-sm"
                   : "text-slate-500 dark:text-zinc-400 hover:text-slate-800"
               }`}
             >
