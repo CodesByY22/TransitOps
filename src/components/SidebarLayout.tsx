@@ -48,6 +48,7 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [session, setSession] = useState<UserSession | null>(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Sync state with URL parameter (for external resets/clears)
   useEffect(() => {
@@ -56,6 +57,7 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
 
   // Read session cookie client-side
   useEffect(() => {
+    setMounted(true);
     const sessionCookie = document.cookie
       .split("; ")
       .find((row) => row.startsWith("session="))
@@ -167,8 +169,8 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
     }
   };
 
-  const userName = session?.name || "Mahavir Patel";
-  const userRole = session?.role || "Fleet Manager";
+  const userName = mounted && session?.name ? session.name : "Mahavir Patel";
+  const userRole = mounted && session?.role ? session.role : "Fleet Manager";
   const userInitials = userName
     .split(" ")
     .map((n) => n[0])
