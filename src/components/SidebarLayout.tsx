@@ -48,6 +48,20 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [session, setSession] = useState<UserSession | null>(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "License Expiring Soon",
+      description: "Driver John's license expires in 3 days.",
+      color: "bg-amber-500",
+    },
+    {
+      id: 2,
+      title: "Maintenance Pending",
+      description: "Vehicle MINI-03 scheduled service overdue.",
+      color: "bg-rose-500",
+    },
+  ]);
   const [mounted, setMounted] = useState(false);
 
   // Sync state with URL parameter (for external resets/clears)
@@ -331,35 +345,42 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
                 className="p-2 rounded-xl border border-slate-200 dark:border-[#1E293B] hover:bg-slate-50 dark:hover:bg-zinc-800/50 text-slate-500 hover:text-slate-700 dark:hover:text-zinc-200 transition-all cursor-pointer relative"
               >
                 <Bell className="h-4 w-4" />
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white dark:ring-[#0B0F19]"></span>
+                {notifications.length > 0 && (
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white dark:ring-[#0B0F19]"></span>
+                )}
               </button>
 
               {notificationsOpen && (
                 <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-[#121214] border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl overflow-hidden z-50 animate-slide-in">
                   <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-950/20">
                     <span className="text-xs font-black text-slate-800 dark:text-zinc-200 uppercase tracking-wider">Alert Center</span>
-                    <button
-                      onClick={() => setNotificationsOpen(false)}
-                      className="text-[10px] font-semibold text-blue-500 hover:text-blue-400"
-                    >
-                      Clear All
-                    </button>
+                    {notifications.length > 0 && (
+                      <button
+                        onClick={() => {
+                          setNotifications([]);
+                          showToast("info", "Alerts Cleared", "All notifications have been cleared.");
+                        }}
+                        className="text-[10px] font-semibold text-blue-500 hover:text-blue-400 cursor-pointer"
+                      >
+                        Clear All
+                      </button>
+                    )}
                   </div>
                   <div className="divide-y divide-slate-100 dark:divide-zinc-800 max-h-60 overflow-y-auto">
-                    <div className="p-3.5 hover:bg-slate-50 dark:hover:bg-zinc-800/20 text-xs flex gap-2">
-                      <span className="h-2 w-2 mt-1 rounded-full bg-amber-500 shrink-0"></span>
-                      <div>
-                        <p className="font-bold text-slate-700 dark:text-zinc-200">License Expiring Soon</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Driver John's license expires in 3 days.</p>
+                    {notifications.map((n) => (
+                      <div key={n.id} className="p-3.5 hover:bg-slate-50 dark:hover:bg-zinc-800/20 text-xs flex gap-2">
+                        <span className={`h-2 w-2 mt-1 rounded-full shrink-0 ${n.color}`}></span>
+                        <div>
+                          <p className="font-bold text-slate-700 dark:text-zinc-200">{n.title}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{n.description}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="p-3.5 hover:bg-slate-50 dark:hover:bg-zinc-800/20 text-xs flex gap-2">
-                      <span className="h-2 w-2 mt-1 rounded-full bg-rose-500 shrink-0"></span>
-                      <div>
-                        <p className="font-bold text-slate-700 dark:text-zinc-200">Maintenance Pending</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Vehicle MINI-03 scheduled service overdue.</p>
+                    ))}
+                    {notifications.length === 0 && (
+                      <div className="p-6 text-center text-[11px] font-semibold text-slate-405 dark:text-zinc-500">
+                        No new notifications.
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
