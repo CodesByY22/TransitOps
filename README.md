@@ -64,12 +64,12 @@ erDiagram
 
     ROLE {
         int id PK
-        string name UNIQUE
+        string name
     }
 
     USER {
         int id PK
-        string email UNIQUE
+        string email
         string password_hash
         string name
         int role_id FK
@@ -77,7 +77,7 @@ erDiagram
 
     VEHICLE {
         int id PK
-        string registration_number UNIQUE
+        string registration_number
         string model
         string type
         float max_capacity
@@ -90,7 +90,7 @@ erDiagram
     DRIVER {
         int id PK
         string name
-        string license_number UNIQUE
+        string license_number
         string license_category
         datetime license_expiry
         string contact_number
