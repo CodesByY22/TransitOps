@@ -38,6 +38,7 @@ model Vehicle {
   odometer           Float
   acquisitionCost    Float            @map("acquisition_cost")
   status             String           // Available, On Trip, In Shop, Retired
+  region             String?
   trips              Trip[]
   maintenanceLogs    MaintenanceLog[]
   fuelLogs           FuelLog[]

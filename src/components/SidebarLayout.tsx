@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Truck,
@@ -23,6 +23,31 @@ interface SidebarLayoutProps {
 
 export default function SidebarLayout({ children, activeTab }: SidebarLayoutProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [searchVal, setSearchVal] = useState(searchParams.get("search") || "");
+
+  // Sync state with searchParams (e.g. if filters are cleared)
+  useEffect(() => {
+    setSearchVal(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  const handleSearchSubmit = (val: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (val.trim() === "") {
+      params.delete("search");
+    } else {
+      params.set("search", val.trim());
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearchSubmit(searchVal);
+    }
+  };
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -97,6 +122,9 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
             </span>
             <input
               type="text"
+              value={searchVal}
+              onChange={(e) => setSearchVal(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Search assets, trips, drivers..."
               className="w-full h-10 bg-[#1a1a1e] border border-[#26262b] rounded-lg pl-10 pr-4 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-all"
             />

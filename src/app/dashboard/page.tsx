@@ -17,6 +17,7 @@ interface DashboardPageProps {
     type?: string;
     status?: string;
     region?: string;
+    search?: string;
   }>;
 }
 
@@ -24,6 +25,8 @@ export default async function DashboardPage(props: DashboardPageProps) {
   const searchParams = await props.searchParams;
   const typeFilter = searchParams.type || "All";
   const statusFilter = searchParams.status || "All";
+  const regionFilter = searchParams.region || "All";
+  const searchQuery = searchParams.search || "";
 
   // 1. Fetch data from Neon database using Prisma
   const rawVehicles = await prisma.vehicle.findMany();
@@ -42,14 +45,25 @@ export default async function DashboardPage(props: DashboardPageProps) {
   const filteredVehicles = rawVehicles.filter((vehicle) => {
     const matchesType = typeFilter === "All" || vehicle.type === typeFilter;
     const matchesStatus = statusFilter === "All" || vehicle.status === statusFilter;
-    return matchesType && matchesStatus;
+    const matchesRegion = regionFilter === "All" || vehicle.region === regionFilter;
+    return matchesType && matchesStatus && matchesRegion;
   });
 
-  // Filter Trips dynamically based on dropdown values
+  // Filter Trips dynamically based on dropdown values, regions, and search bar queries
   const filteredTrips = allTrips.filter((trip) => {
     const matchesType = typeFilter === "All" || trip.vehicle?.type === typeFilter;
     const matchesStatus = statusFilter === "All" || trip.status === statusFilter || trip.vehicle?.status === statusFilter;
-    return matchesType && matchesStatus;
+    const matchesRegion = regionFilter === "All" || trip.vehicle?.region === regionFilter;
+    
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch = query === "" || 
+      trip.source.toLowerCase().includes(query) ||
+      trip.destination.toLowerCase().includes(query) ||
+      (trip.vehicle?.model && trip.vehicle.model.toLowerCase().includes(query)) ||
+      (trip.vehicle?.registrationNumber && trip.vehicle.registrationNumber.toLowerCase().includes(query)) ||
+      (trip.driver?.name && trip.driver.name.toLowerCase().includes(query));
+      
+    return matchesType && matchesStatus && matchesSearch;
   });
 
   // 3. Compute KPI Metrics using the FILTERED list so it changes dynamically

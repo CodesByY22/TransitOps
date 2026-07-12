@@ -90,6 +90,7 @@ async function main() {
       odometer: 74000.0,
       acquisitionCost: 620000.0, // INR
       status: "Available",
+      region: "West",
     },
   });
 
@@ -102,6 +103,7 @@ async function main() {
       odometer: 182000.0,
       acquisitionCost: 2450000.0,
       status: "On Trip",
+      region: "North",
     },
   });
 
@@ -114,6 +116,7 @@ async function main() {
       odometer: 66000.0,
       acquisitionCost: 410000.0,
       status: "In Shop",
+      region: "East",
     },
   });
 
@@ -126,6 +129,7 @@ async function main() {
       odometer: 241900.0,
       acquisitionCost: 590000.0,
       status: "Retired",
+      region: "South",
     },
   });
 
