@@ -1,8 +1,29 @@
-export default function MaintenancePage() {
+import React from "react";
+import { prisma } from "@/lib/db";
+import SidebarLayout from "@/components/SidebarLayout";
+import MaintenanceClient from "./MaintenanceClient";
+
+export const revalidate = 0; // Disable cache for real-time status transitions
+
+export default async function MaintenancePage() {
+  const logs = await prisma.maintenanceLog.findMany({
+    include: {
+      vehicle: true,
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
+
+  const vehicles = await prisma.vehicle.findMany({
+    orderBy: {
+      registrationNumber: "asc",
+    },
+  });
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">MaintenancePage Skeleton</h1>
-      <p className="text-gray-500">This folder is assigned for this feature.</p>
-    </div>
+    <SidebarLayout activeTab="maintenance">
+      <MaintenanceClient initialLogs={logs} vehicles={vehicles} />
+    </SidebarLayout>
   );
 }

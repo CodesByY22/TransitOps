@@ -3,100 +3,43 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export interface ActionResponse {
+export interface TripActionState {
   success: boolean;
-  message: string;
-  data?: any;
+  error?: string;
 }
 
-/**
- * Creates or plans a trip (Draft or Dispatched)
- */
-export async function createTrip(formData: {
-  source: string;
-  destination: string;
-  vehicleId: number | null;
-  driverId: number | null;
-  cargoWeight: number;
-  plannedDistance: number;
-  status: "Draft" | "Dispatched";
-  eta: string;
-}): Promise<ActionResponse> {
+export async function createTrip(prevState: any, formData: FormData): Promise<TripActionState> {
+  const source = formData.get("source")?.toString().trim();
+  const destination = formData.get("destination")?.toString().trim();
+  const vehicleIdVal = formData.get("vehicleId")?.toString();
+  const driverIdVal = formData.get("driverId")?.toString();
+  const cargoWeight = parseFloat(formData.get("cargoWeight")?.toString() || "0");
+  const plannedDistance = parseFloat(formData.get("plannedDistance")?.toString() || "0");
+  const eta = formData.get("eta")?.toString().trim() || "Awaiting dispatch";
+  const createdById = parseInt(formData.get("createdById")?.toString() || "1");
+
+  if (!source || !destination || isNaN(cargoWeight) || isNaN(plannedDistance)) {
+    return { success: false, error: "Please enter valid route details." };
+  }
+
+  const vehicleId = vehicleIdVal ? parseInt(vehicleIdVal) : null;
+  const driverId = driverIdVal ? parseInt(driverIdVal) : null;
+
   try {
-    const { source, destination, vehicleId, driverId, cargoWeight, plannedDistance, status, eta } = formData;
-
-    // Hard validations for Dispatch status
-    if (status === "Dispatched") {
-      if (!vehicleId) {
-        return { success: false, message: "A vehicle must be selected to dispatch a trip." };
-      }
-      if (!driverId) {
-        return { success: false, message: "A driver must be assigned to dispatch a trip." };
-      }
-    }
-
-    // 1. Vehicle checks (if assigned)
+    // 1. Initial Validation Checks for assignments if they are set
     if (vehicleId) {
       const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
-      if (!vehicle) {
-        return { success: false, message: "Selected vehicle does not exist." };
-      }
-      
-      // Prevent retired vehicles
-      if (vehicle.status === "Retired") {
-        return { success: false, message: "Selected vehicle is retired and cannot be used." };
-      }
-
-      // If dispatching, check if vehicle is already occupied
-      if (status === "Dispatched" && vehicle.status !== "Available") {
-        return { 
-          success: false, 
-          message: `Vehicle is currently unavailable (Status: ${vehicle.status}).` 
-        };
-      }
-
-      // Check cargo weight capacity
-      if (cargoWeight > vehicle.maxCapacity) {
-        return { 
-          success: false, 
-          message: `Cargo weight (${cargoWeight} kg) exceeds vehicle's maximum capacity (${vehicle.maxCapacity} kg).` 
-        };
+      if (vehicle) {
+        if (cargoWeight > vehicle.maxCapacity) {
+          return {
+            success: false,
+            error: `Cargo weight (${cargoWeight} kg) exceeds vehicle maximum capacity (${vehicle.maxCapacity} kg).`,
+          };
+        }
       }
     }
 
-    // 2. Driver checks (if assigned)
-    if (driverId) {
-      const driver = await prisma.driver.findUnique({ where: { id: driverId } });
-      if (!driver) {
-        return { success: false, message: "Selected driver does not exist." };
-      }
-
-      // If dispatching, check if driver is already occupied
-      if (status === "Dispatched" && driver.activeStatus !== "Available") {
-        return { 
-          success: false, 
-          message: "Selected driver is already active on another trip." 
-        };
-      }
-
-      // Check safety compliance & license expiry
-      if (driver.safetyComplianceStatus === "Suspended") {
-        return { success: false, message: "Selected driver is suspended and cannot be dispatched." };
-      }
-
-      if (new Date(driver.licenseExpiry) < new Date()) {
-        return { success: false, message: "Selected driver has an expired driving license." };
-      }
-    }
-
-    // 3. Create the Trip
-    // Note: We use a default hardcoded dispatcher ID of 1 (or the first user) for simplicity
-    const defaultUser = await prisma.user.findFirst();
-    if (!defaultUser) {
-      return { success: false, message: "No dispatchers/users found in database to link trip creation." };
-    }
-
-    const trip = await prisma.trip.create({
+    await prisma.trip.create({
       data: {
         source,
         destination,
@@ -104,163 +47,226 @@ export async function createTrip(formData: {
         driverId,
         cargoWeight,
         plannedDistance,
-        status,
+        status: "Draft",
         eta,
-        createdById: defaultUser.id,
+        createdById,
       },
     });
 
-    // 4. Update Vehicle and Driver status to "On Trip" if status is "Dispatched"
-    if (status === "Dispatched") {
-      if (vehicleId) {
-        await prisma.vehicle.update({
-          where: { id: vehicleId },
-          data: { status: "On Trip" },
-        });
-      }
-      if (driverId) {
-        await prisma.driver.update({
-          where: { id: driverId },
-          data: { activeStatus: "On Trip" },
-        });
-      }
-    }
-
-    revalidatePath("/dashboard");
     revalidatePath("/trips");
-    return { success: true, message: `Trip planned successfully as ${status}.`, data: trip };
-
-  } catch (error: any) {
-    console.error("Failed to create trip:", error);
-    return { success: false, message: `Internal server error: ${error.message || error}` };
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to create trip draft:", error);
+    return { success: false, error: "Database error occurred." };
   }
 }
 
-/**
- * Completes an active trip
- */
-export async function completeTrip(
-  tripId: number,
-  finalOdometer: number,
-  fuelConsumed: number
-): Promise<ActionResponse> {
+export async function dispatchTrip(tripId: number): Promise<TripActionState> {
   try {
-    // 1. Fetch Trip details
     const trip = await prisma.trip.findUnique({
       where: { id: tripId },
       include: { vehicle: true, driver: true },
     });
 
     if (!trip) {
-      return { success: false, message: "Trip not found." };
+      return { success: false, error: "Trip not found." };
     }
 
-    if (trip.status !== "On Trip" && trip.status !== "Dispatched") {
-      return { success: false, message: "Only active or dispatched trips can be completed." };
+    if (!trip.vehicleId || !trip.driverId) {
+      return { success: false, error: "Cannot dispatch a trip without a vehicle and driver assigned." };
     }
 
-    if (!trip.vehicleId) {
-      return { success: false, message: "Cannot complete a trip that has no vehicle assigned." };
+    const { vehicle, driver, cargoWeight } = trip;
+
+    if (!vehicle || !driver) {
+      return { success: false, error: "Assigned vehicle or driver record is missing." };
     }
 
-    // 2. Validate Odometer
-    if (trip.vehicle && finalOdometer <= trip.vehicle.odometer) {
+    // 2. Strict Dispatch Validations
+    // Check Vehicle Status
+    if (vehicle.status !== "Available") {
       return {
         success: false,
-        message: `Final odometer (${finalOdometer} km) must be greater than the vehicle's current odometer (${trip.vehicle.odometer} km).`,
+        error: `Vehicle ${vehicle.registrationNumber} is not available (Current status: ${vehicle.status}).`,
       };
     }
 
-    // 3. Update Trip
-    await prisma.trip.update({
-      where: { id: tripId },
-      data: {
-        status: "Completed",
-        finalOdometer,
-        fuelConsumed,
-      },
-    });
-
-    // 4. Update Vehicle (odometer, set status to Available)
-    await prisma.vehicle.update({
-      where: { id: trip.vehicleId },
-      data: {
-        odometer: finalOdometer,
-        status: "Available",
-      },
-    });
-
-    // 5. Update Driver (set status to Available)
-    if (trip.driverId) {
-      await prisma.driver.update({
-        where: { id: trip.driverId },
-        data: { activeStatus: "Available" },
-      });
+    // Check Driver Duty Status
+    if (driver.activeStatus !== "Available") {
+      return {
+        success: false,
+        error: `Driver ${driver.name} is not available (Current status: ${driver.activeStatus}).`,
+      };
     }
 
-    // 6. Automatically log a fuel entry for financial analysis
-    await prisma.fuelLog.create({
-      data: {
-        vehicleId: trip.vehicleId,
-        liters: fuelConsumed,
-        // Assume average cost of 100 INR per liter for realism
-        cost: fuelConsumed * 100,
-        date: new Date(),
-      },
-    });
+    // Check Driver License Expiry
+    const today = new Date();
+    if (new Date(driver.licenseExpiry) <= today) {
+      return {
+        success: false,
+        error: `Cannot dispatch: Driver ${driver.name} has an expired license (Expired on: ${new Date(
+          driver.licenseExpiry
+        ).toLocaleDateString()}).`,
+      };
+    }
 
-    revalidatePath("/dashboard");
+    // Check Capacity
+    if (cargoWeight > vehicle.maxCapacity) {
+      return {
+        success: false,
+        error: `Cannot dispatch: Cargo weight (${cargoWeight} kg) exceeds vehicle max capacity (${vehicle.maxCapacity} kg).`,
+      };
+    }
+
+    // 3. Perform atomic state changes
+    await prisma.$transaction([
+      // Update Trip Status
+      prisma.trip.update({
+        where: { id: tripId },
+        data: { status: "Dispatched" },
+      }),
+      // Update Vehicle Status
+      prisma.vehicle.update({
+        where: { id: vehicle.id },
+        data: { status: "On Trip" },
+      }),
+      // Update Driver Status
+      prisma.driver.update({
+        where: { id: driver.id },
+        data: { activeStatus: "On Trip" },
+      }),
+    ]);
+
     revalidatePath("/trips");
-    return { success: true, message: "Trip successfully completed, odometer updated, and fuel log recorded." };
-
-  } catch (error: any) {
-    console.error("Failed to complete trip:", error);
-    return { success: false, message: `Internal server error: ${error.message || error}` };
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to dispatch trip:", error);
+    return { success: false, error: "Database transaction error occurred during dispatch." };
   }
 }
 
-/**
- * Cancels a planned or active trip
- */
-export async function cancelTrip(tripId: number): Promise<ActionResponse> {
+export async function advanceTripStatus(
+  tripId: number,
+  nextStatus: string,
+  finalOdometer?: number,
+  fuelConsumed?: number
+): Promise<TripActionState> {
   try {
-    const trip = await prisma.trip.findUnique({ where: { id: tripId } });
-    if (!trip) {
-      return { success: false, message: "Trip not found." };
-    }
-
-    if (trip.status === "Completed" || trip.status === "Cancelled") {
-      return { success: false, message: "Completed or already cancelled trips cannot be modified." };
-    }
-
-    // If trip was active/dispatched, restore vehicle & driver status to Available
-    if (trip.status === "Dispatched" || trip.status === "On Trip") {
-      if (trip.vehicleId) {
-        await prisma.vehicle.update({
-          where: { id: trip.vehicleId },
-          data: { status: "Available" },
-        });
-      }
-      if (trip.driverId) {
-        await prisma.driver.update({
-          where: { id: trip.driverId },
-          data: { activeStatus: "Available" },
-        });
-      }
-    }
-
-    // Update Trip status to Cancelled
-    await prisma.trip.update({
+    const trip = await prisma.trip.findUnique({
       where: { id: tripId },
-      data: { status: "Cancelled" },
+      include: { vehicle: true, driver: true },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/trips");
-    return { success: true, message: "Trip successfully cancelled and resources released." };
+    if (!trip) {
+      return { success: false, error: "Trip not found." };
+    }
 
-  } catch (error: any) {
-    console.error("Failed to cancel trip:", error);
-    return { success: false, message: `Internal server error: ${error.message || error}` };
+    if (nextStatus === "Completed") {
+      if (finalOdometer === undefined || fuelConsumed === undefined) {
+        return { success: false, error: "Final odometer and fuel consumed are required to complete a trip." };
+      }
+
+      const vehicle = trip.vehicle;
+      if (!vehicle) {
+        return { success: false, error: "Vehicle not found on this trip." };
+      }
+
+      if (finalOdometer < vehicle.odometer) {
+        return {
+          success: false,
+          error: `Final odometer (${finalOdometer} km) cannot be less than initial odometer (${vehicle.odometer} km).`,
+        };
+      }
+
+      // Complete trip, update vehicle odometer, reset vehicle & driver to Available
+      await prisma.$transaction(async (tx) => {
+        // Update Trip
+        await tx.trip.update({
+          where: { id: tripId },
+          data: {
+            status: "Completed",
+            finalOdometer,
+            fuelConsumed,
+            eta: "—",
+          },
+        });
+
+        // Update Vehicle Odometer and reset Status
+        await tx.vehicle.update({
+          where: { id: vehicle.id },
+          data: {
+            odometer: finalOdometer,
+            status: "Available",
+          },
+        });
+
+        // Reset Driver
+        if (trip.driverId) {
+          await tx.driver.update({
+            where: { id: trip.driverId },
+            data: { activeStatus: "Available" },
+          });
+        }
+
+        // Auto log fuel receipt if fuelConsumed and cost are simulated
+        const fuelCost = fuelConsumed * 95.0;
+        await tx.fuelLog.create({
+          data: {
+            vehicleId: vehicle.id,
+            liters: fuelConsumed,
+            cost: fuelCost,
+          },
+        });
+
+        // Log trip expenses (Toll cost = ₹150, Other misc = ₹80)
+        await tx.expense.create({
+          data: {
+            tripId,
+            toll: 150.0,
+            other: 80.0,
+            total: 230.0,
+          },
+        });
+      });
+    } else if (nextStatus === "Cancelled") {
+      // Cancel trip, reset vehicle & driver to Available
+      await prisma.$transaction([
+        prisma.trip.update({
+          where: { id: tripId },
+          data: { status: "Cancelled", eta: "—" },
+        }),
+        ...(trip.vehicleId
+          ? [
+              prisma.vehicle.update({
+                where: { id: trip.vehicleId },
+                data: { status: "Available" },
+              }),
+            ]
+          : []),
+        ...(trip.driverId
+          ? [
+              prisma.driver.update({
+                where: { id: trip.driverId },
+                data: { activeStatus: "Available" },
+              }),
+            ]
+          : []),
+      ]);
+    } else {
+      // Simple status transition (e.g. Dispatched -> In Transit)
+      await prisma.trip.update({
+        where: { id: tripId },
+        data: { status: nextStatus },
+      });
+    }
+
+    revalidatePath("/trips");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to advance trip status:", error);
+    return { success: false, error: "Database transaction error occurred." };
   }
 }

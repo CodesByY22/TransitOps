@@ -1,21 +1,16 @@
 import React from "react";
 import { prisma } from "@/lib/db";
-import TripsClientPage from "./TripsClientPage";
+import { getSession } from "@/features/auth/actions";
+import SidebarLayout from "@/components/SidebarLayout";
+import TripsClient from "./TripsClient";
+
+export const revalidate = 0; // Prevent caching to guarantee real-time dispatch checks
 
 export default async function TripsPage() {
-  // Query datasets directly from Neon Cloud database
-  const vehicles = await prisma.vehicle.findMany({
-    orderBy: {
-      model: "asc",
-    },
-  });
+  const session = await getSession();
+  const currentUserId = session?.id || 1;
 
-  const drivers = await prisma.driver.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
-
+  // Query datasets with relations
   const trips = await prisma.trip.findMany({
     include: {
       vehicle: true,
@@ -26,11 +21,26 @@ export default async function TripsPage() {
     },
   });
 
+  const vehicles = await prisma.vehicle.findMany({
+    orderBy: {
+      registrationNumber: "asc",
+    },
+  });
+
+  const drivers = await prisma.driver.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   return (
-    <TripsClientPage
-      vehicles={vehicles}
-      drivers={drivers}
-      trips={trips}
-    />
+    <SidebarLayout activeTab="trips">
+      <TripsClient
+        initialTrips={trips}
+        vehicles={vehicles}
+        drivers={drivers}
+        currentUserId={currentUserId}
+      />
+    </SidebarLayout>
   );
 }

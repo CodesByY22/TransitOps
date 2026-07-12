@@ -1,8 +1,20 @@
-export default function DriversPage() {
+import React from "react";
+import { prisma } from "@/lib/db";
+import SidebarLayout from "@/components/SidebarLayout";
+import DriverClient from "./DriverClient";
+
+export const revalidate = 0; // Prevent caching for real-time compliance tracking
+
+export default async function DriversPage() {
+  const drivers = await prisma.driver.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">DriversPage Skeleton</h1>
-      <p className="text-gray-500">This folder is assigned for this feature.</p>
-    </div>
+    <SidebarLayout activeTab="drivers">
+      <DriverClient initialDrivers={drivers} />
+    </SidebarLayout>
   );
 }

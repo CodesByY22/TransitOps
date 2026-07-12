@@ -1,8 +1,26 @@
-export default function FleetPage() {
+import React from "react";
+import { prisma } from "@/lib/db";
+import SidebarLayout from "@/components/SidebarLayout";
+import FleetClient from "./FleetClient";
+
+export const revalidate = 0; // Disable caching to ensure real-time operations data
+
+export default async function FleetPage() {
+  // Fetch vehicles with relational data to calculate real-time ROI and efficiency
+  const vehicles = await prisma.vehicle.findMany({
+    include: {
+      fuelLogs: true,
+      maintenanceLogs: true,
+      trips: true,
+    },
+    orderBy: {
+      registrationNumber: "asc",
+    },
+  });
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">FleetPage Skeleton</h1>
-      <p className="text-gray-500">This folder is assigned for this feature.</p>
-    </div>
+    <SidebarLayout activeTab="fleet">
+      <FleetClient initialVehicles={vehicles} />
+    </SidebarLayout>
   );
 }
