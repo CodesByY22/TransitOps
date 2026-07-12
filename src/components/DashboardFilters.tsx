@@ -52,7 +52,7 @@ function CustomSelect({ label, value, options, onChange, disabled }: CustomSelec
       </button>
 
       {isOpen && (
-        <div className="absolute top-[62px] left-0 w-full bg-white dark:bg-[#111625] border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl z-30 py-1 overflow-hidden animate-slide-in">
+        <div className="absolute top-[62px] left-0 w-full bg-white dark:bg-[#111625] border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 py-1 overflow-hidden animate-slide-in">
           {options.map((option) => {
             const isSelected = option.value === value;
             return (
@@ -136,7 +136,7 @@ export default function DashboardFilters() {
   ];
 
   return (
-    <div className="relative flex flex-wrap items-end gap-4 bg-white dark:bg-[#0B0F19] p-5 rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm transition-colors mb-6 overflow-hidden">
+    <div className="relative flex flex-wrap items-end gap-4 bg-white dark:bg-[#0B0F19] p-5 rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm transition-colors mb-6">
       {/* Inline styling for loading bar animation */}
       <style>{`
         @keyframes loadingBar {
