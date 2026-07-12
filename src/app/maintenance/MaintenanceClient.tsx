@@ -307,7 +307,7 @@ export default function MaintenanceClient({
                   <span className="text-[9px] font-mono text-slate-400">{log.vehicle.model}</span>
                 </div>
 
-                <p className="text-xs font-bold text-slate-650 dark:text-zinc-400 mt-2 line-through">{log.description}</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 mt-2 line-through">{log.description}</p>
 
                 {/* Card details */}
                 <div className="mt-3 space-y-1.5 text-[10px] font-semibold text-slate-400 dark:text-zinc-500">
@@ -347,7 +347,7 @@ export default function MaintenanceClient({
                   <h3 className="text-xs font-black text-slate-900 dark:text-zinc-100 uppercase tracking-wider">Log Service Event</h3>
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Send a vehicle to the maintenance depot</p>
                 </div>
-                <button type="button" onClick={() => setAddOpen(false)} className="text-slate-400 hover:text-slate-650">
+                <button type="button" onClick={() => setAddOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300">
                   <X className="h-4 w-4" />
                 </button>
               </div>

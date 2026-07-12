@@ -751,7 +751,7 @@ export default function TripsClient({
 
                 {/* Vehicle Selector */}
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-650 dark:text-zinc-400 tracking-wider">Select Vehicle</label>
+                  <label className="text-[9px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-wider">Select Vehicle</label>
                   <select
                     value={draftVehicleId}
                     onChange={(e) => setDraftVehicleId(e.target.value)}
@@ -773,7 +773,7 @@ export default function TripsClient({
 
                 {/* Driver Selector */}
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-650 dark:text-zinc-400 tracking-wider">Select Driver</label>
+                  <label className="text-[9px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-wider">Select Driver</label>
                   <select
                     value={draftDriverId}
                     onChange={(e) => setDraftDriverId(e.target.value)}
@@ -796,7 +796,7 @@ export default function TripsClient({
 
                 {/* ETA */}
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-650 dark:text-zinc-400 tracking-wider">ETA Duration</label>
+                  <label className="text-[9px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-wider">ETA Duration</label>
                   <input
                     type="text"
                     value={draftEta}

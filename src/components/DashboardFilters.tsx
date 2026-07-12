@@ -25,7 +25,7 @@ export default function DashboardFilters() {
   return (
     <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-[#0B0F19] p-4 rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm transition-colors mb-6">
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-550">Vehicle Type</label>
+        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-400">Vehicle Type</label>
         <select
           value={currentType}
           onChange={(e) => handleFilterChange("type", e.target.value)}
@@ -39,7 +39,7 @@ export default function DashboardFilters() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-550">Status</label>
+        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-400">Status</label>
         <select
           value={currentStatus}
           onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -54,7 +54,7 @@ export default function DashboardFilters() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-550">Region</label>
+        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-400">Region</label>
         <select
           value={currentRegion}
           onChange={(e) => handleFilterChange("region", e.target.value)}

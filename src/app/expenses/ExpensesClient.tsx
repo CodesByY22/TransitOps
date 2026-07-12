@@ -401,7 +401,7 @@ export default function ExpensesClient({
                   <h3 className="text-xs font-black text-slate-900 dark:text-zinc-100 uppercase tracking-wider">Log Fuel Receipt</h3>
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Record fuel liters and cost for auditing</p>
                 </div>
-                <button type="button" onClick={() => setFuelOpen(false)} className="text-slate-400 hover:text-slate-650">
+                <button type="button" onClick={() => setFuelOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -502,7 +502,7 @@ export default function ExpensesClient({
                   <h3 className="text-xs font-black text-slate-900 dark:text-zinc-100 uppercase tracking-wider">Log Toll/Misc Expense</h3>
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Attach tolls or miscellaneous expenses to a trip</p>
                 </div>
-                <button type="button" onClick={() => setExpenseOpen(false)} className="text-slate-400 hover:text-slate-650">
+                <button type="button" onClick={() => setExpenseOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300">
                   <X className="h-4 w-4" />
                 </button>
               </div>

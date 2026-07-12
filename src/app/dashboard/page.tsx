@@ -141,7 +141,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{activeVehiclesCount}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{activeVehiclesCount}</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">On dispatch route</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{availableVehiclesCount}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{availableVehiclesCount}</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">Ready for dispatch</p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{inMaintenanceCount}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{inMaintenanceCount}</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">In maintenance shop</p>
             </div>
           </div>
@@ -186,7 +186,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{activeTripsCount}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{activeTripsCount}</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">Dispatched dispatches</p>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{pendingTripsCount}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{pendingTripsCount}</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">Draft plans saved</p>
             </div>
           </div>
@@ -216,7 +216,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{driversOnDutyCount}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{driversOnDutyCount}</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">Active operators</p>
             </div>
           </div>
@@ -231,7 +231,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
               </div>
             </div>
             <div className="mt-1 z-10">
-              <span className="text-2xl font-black text-slate-900 dark:text-zinc-550 tracking-tight">{utilizationPercentage}%</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">{utilizationPercentage}%</span>
               <p className="text-[9px] text-slate-400 dark:text-zinc-500 mt-0.5 font-semibold">Active/Total active</p>
             </div>
           </div>
@@ -268,7 +268,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                     const tripId = `TR${String(trip.id).padStart(3, "0")}`;
                     
                     // Status Badge Styling with glowing shadows
-                    let badgeClass = "bg-slate-100 text-slate-650 border-slate-200";
+                    let badgeClass = "bg-slate-100 text-slate-600 dark:text-zinc-400 dark:bg-zinc-800/30 dark:border-zinc-700/50 border-slate-200";
                     if (trip.status === "On Trip") {
                       badgeClass = "bg-blue-500/10 text-blue-600 border-blue-500/20 shadow-sm shadow-blue-500/5";
                     } else if (trip.status === "Completed") {
@@ -284,7 +284,7 @@ export default async function DashboardPage(props: DashboardPageProps) {
                         <td className="py-4 px-4 font-mono font-bold text-slate-900 dark:text-zinc-100 group-hover:text-blue-500 transition-colors">{tripId}</td>
                         <td className="py-4 px-4">
                           <div className="text-xs font-bold text-slate-800 dark:text-zinc-200">{trip.source}</div>
-                          <div className="text-[10px] text-slate-400 dark:text-zinc-550 font-semibold mt-0.5">➔ {trip.destination}</div>
+                          <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">➔ {trip.destination}</div>
                         </td>
                         <td className="py-4 px-4">
                           {trip.vehicle ? (
