@@ -495,7 +495,7 @@ export default function TripsClient({
         </div>
 
         {/* Right Column: Dispatch Panel Form */}
-        <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-[#1E293B] rounded-2xl p-5 shadow-sm space-y-5 transition-colors sticky top-24">
+        <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-[#1E293B] rounded-2xl p-5 shadow-sm space-y-5 transition-colors">
           <div>
             <h3 className="text-sm font-black text-slate-900 dark:text-zinc-50 uppercase tracking-wider">Plan Dispatch</h3>
             <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Create a trip draft and allocate fleet resources</p>
