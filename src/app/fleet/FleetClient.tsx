@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { createVehicle, updateVehicle, deleteVehicle, FleetActionState } from "@/features/fleet/actions";
 import { useToast } from "@/components/Toast";
 import {
@@ -60,6 +60,79 @@ interface Vehicle {
   fuelLogs: FuelLog[];
   maintenanceLogs: MaintenanceLog[];
   trips: Trip[];
+}
+
+interface FleetSelectProps {
+  value: string;
+  options: { label: string; value: string }[];
+  onChange: (value: string) => void;
+}
+
+function FleetSelect({ value, options, onChange }: FleetSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((o) => o.value === value) || options[0];
+
+  return (
+    <div className="relative min-w-[130px]" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-[#1E293B] text-slate-800 dark:text-zinc-200 text-xs rounded-xl h-10 px-3.5 font-bold w-full transition-all hover:bg-slate-100/70 dark:hover:bg-zinc-800/30 text-left cursor-pointer focus:outline-none focus:border-blue-500"
+      >
+        <span className="truncate">{selectedOption.label}</span>
+        <svg
+          className={`h-4 w-4 text-slate-400 dark:text-zinc-500 transition-transform duration-200 shrink-0 ml-1.5 ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-[44px] left-0 w-full bg-white dark:bg-[#111625] border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 py-1 overflow-hidden animate-slide-in">
+          {options.map((option) => {
+            const isSelected = option.value === value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3.5 py-2.5 text-xs transition-colors font-bold flex items-center justify-between cursor-pointer ${
+                  isSelected
+                    ? "bg-blue-600/10 text-blue-600 dark:text-blue-400"
+                    : "text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/30 hover:text-slate-900 dark:hover:text-zinc-200"
+                }`}
+              >
+                <span className="truncate">{option.label}</span>
+                {isSelected && (
+                  <svg className="h-3.5 w-3.5 text-blue-500 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function FleetClient({ initialVehicles }: { initialVehicles: Vehicle[] }) {
@@ -252,36 +325,36 @@ export default function FleetClient({ initialVehicles }: { initialVehicles: Vehi
           {/* Type Filter */}
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
-            <select
+            <FleetSelect
               value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
+              options={[
+                { label: "All Types", value: "All" },
+                { label: "Vans", value: "Van" },
+                { label: "Trucks", value: "Truck" },
+                { label: "Mini Trucks", value: "Mini" },
+              ]}
+              onChange={(val) => {
+                setTypeFilter(val);
                 setCurrentPage(1);
               }}
-              className="h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-[#1E293B] rounded-xl px-3 text-xs text-slate-700 dark:text-zinc-300 font-bold focus:outline-none focus:border-blue-500"
-            >
-              <option value="All">All Types</option>
-              <option value="Van">Vans</option>
-              <option value="Truck">Trucks</option>
-              <option value="Mini">Mini Trucks</option>
-            </select>
+            />
           </div>
 
           {/* Status Filter */}
-          <select
+          <FleetSelect
             value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
+            options={[
+              { label: "All Status", value: "All" },
+              { label: "Available", value: "Available" },
+              { label: "On Trip", value: "On Trip" },
+              { label: "In Shop", value: "In Shop" },
+              { label: "Retired", value: "Retired" },
+            ]}
+            onChange={(val) => {
+              setStatusFilter(val);
               setCurrentPage(1);
             }}
-            className="h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-[#1E293B] rounded-xl px-3 text-xs text-slate-700 dark:text-zinc-300 font-bold focus:outline-none focus:border-blue-500"
-          >
-            <option value="All">All Status</option>
-            <option value="Available">Available</option>
-            <option value="On Trip">On Trip</option>
-            <option value="In Shop">In Shop</option>
-            <option value="Retired">Retired</option>
-          </select>
+          />
         </div>
       </div>
 
