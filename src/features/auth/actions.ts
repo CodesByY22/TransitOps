@@ -77,7 +77,7 @@ export async function login(prevState: any, formData: FormData): Promise<AuthSta
 
     const cookieStore = await cookies();
     cookieStore.set("session", JSON.stringify(sessionData), {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 2, // 2 hours
       path: "/",
