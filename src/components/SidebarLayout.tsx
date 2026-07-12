@@ -281,7 +281,7 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
             {/* Breadcrumb Navigation */}
             <nav className="hidden sm:flex items-center space-x-1.5 text-xs text-slate-400 dark:text-zinc-500">
               {breadcrumbs.map((breadcrumb, i) => (
-                <React.Fragment key={breadcrumb.href}>
+                <React.Fragment key={`${breadcrumb.href}-${i}`}>
                   {i > 0 && <span className="select-none">/</span>}
                   <Link
                     href={breadcrumb.href}
