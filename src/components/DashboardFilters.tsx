@@ -22,13 +22,13 @@ export default function DashboardFilters() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-4 bg-[#121214] p-4 rounded-xl border border-[#1a1a1e] mb-6">
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">Vehicle Type</label>
+    <div className="flex flex-wrap items-center gap-4 bg-zinc-950/20 p-4 rounded-xl border border-[#18181b]">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 font-mono">Vehicle Type</label>
         <select
           value={currentType}
           onChange={(e) => handleFilterChange("type", e.target.value)}
-          className="bg-[#1a1a1e] border border-[#26262b] text-zinc-200 text-sm rounded-lg h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-[#09090b] border border-[#27272a] hover:border-zinc-700 text-zinc-200 text-xs rounded-lg h-9 px-3 min-w-[150px] focus:outline-none focus:border-zinc-500 cursor-pointer transition"
         >
           <option value="All">All Types</option>
           <option value="Van">Van</option>
@@ -37,12 +37,12 @@ export default function DashboardFilters() {
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">Status</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 font-mono">Status</label>
         <select
           value={currentStatus}
           onChange={(e) => handleFilterChange("status", e.target.value)}
-          className="bg-[#1a1a1e] border border-[#26262b] text-zinc-200 text-sm rounded-lg h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-[#09090b] border border-[#27272a] hover:border-zinc-700 text-zinc-200 text-xs rounded-lg h-9 px-3 min-w-[150px] focus:outline-none focus:border-zinc-500 cursor-pointer transition"
         >
           <option value="All">All Statuses</option>
           <option value="Available">Available</option>
@@ -52,12 +52,12 @@ export default function DashboardFilters() {
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">Region</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 font-mono">Region</label>
         <select
           value={currentRegion}
           onChange={(e) => handleFilterChange("region", e.target.value)}
-          className="bg-[#1a1a1e] border border-[#26262b] text-zinc-200 text-sm rounded-lg h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-[#09090b] border border-[#27272a] hover:border-zinc-700 text-zinc-200 text-xs rounded-lg h-9 px-3 min-w-[150px] focus:outline-none focus:border-zinc-500 cursor-pointer transition"
         >
           <option value="All">All Regions</option>
           <option value="North">North</option>
@@ -69,7 +69,7 @@ export default function DashboardFilters() {
 
       <button
         onClick={() => router.push("/dashboard")}
-        className="mt-5 h-10 px-4 text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-[#1a1a1e] border border-[#26262b] rounded-lg transition"
+        className="mt-5 h-9 px-4 text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-[#09090b] border border-[#27272a] hover:border-zinc-700 rounded-lg transition"
       >
         Clear Filters
       </button>
