@@ -28,24 +28,41 @@ export default function SidebarLayout({ children, activeTab }: SidebarLayoutProp
 
   const [searchVal, setSearchVal] = useState(searchParams.get("search") || "");
 
-  // Sync state with searchParams (e.g. if filters are cleared)
+  // Sync state with URL parameter (for external resets/clears)
   useEffect(() => {
     setSearchVal(searchParams.get("search") || "");
   }, [searchParams]);
 
-  const handleSearchSubmit = (val: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (val.trim() === "") {
-      params.delete("search");
-    } else {
-      params.set("search", val.trim());
-    }
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  // Debounced search on change
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      const currentQuery = searchParams.get("search") || "";
+      const newQuery = searchVal.trim();
+      
+      if (currentQuery !== newQuery) {
+        if (newQuery === "") {
+          params.delete("search");
+        } else {
+          params.set("search", newQuery);
+        }
+        router.push(`${pathname}?${params.toString()}`);
+      }
+    }, 300); // 300ms debounce delay
+
+    return () => clearTimeout(handler);
+  }, [searchVal, pathname, router, searchParams]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handleSearchSubmit(searchVal);
+      // Instant push on Enter press
+      const params = new URLSearchParams(searchParams.toString());
+      if (searchVal.trim() === "") {
+        params.delete("search");
+      } else {
+        params.set("search", searchVal.trim());
+      }
+      router.push(`${pathname}?${params.toString()}`);
     }
   };
 
