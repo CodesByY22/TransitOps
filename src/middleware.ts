@@ -1,0 +1,1 @@
+import { NextResponse } from "next/server";`nimport type { NextRequest } from "next/server";`n`nexport function middleware(request: NextRequest) {`n  return NextResponse.next();`n}`n`nexport const config = {`n  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],`n};

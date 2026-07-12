@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  roleId        Int      @map("role_id")
+  role          Role     @relation(fields: [roleId], references: [id])
+  tripsCreated  Trip[]   @relation("TripsCreated")
+
+  @@map("users")
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+
+  @@map("roles")
+}
+
+model Vehicle {
+  id                 Int              @id @default(autoincrement())
+  registrationNumber String           @unique @map("registration_number")
+  model              String
+  type               String
+  maxCapacity        Float            @map("max_capacity") // in kg
+  odometer           Float
+  acquisitionCost    Float            @map("acquisition_cost")
+  status             String           // Available, On Trip, In Shop, Retired
+  trips              Trip[]
+  maintenanceLogs    MaintenanceLog[]
+  fuelLogs           FuelLog[]
+
+  @@map("vehicles")
+}
+
+model Driver {
+  id                      Int      @id @default(autoincrement())
+  name                    String
+  licenseNumber           String   @unique @map("license_number")
+  licenseCategory         String   @map("license_category") // LMV, HMV
+  licenseExpiry           DateTime @map("license_expiry")
+  contactNumber           String   @map("contact_number")
+  tripCompletionRate      Float    @default(100.0) @map("trip_completion_rate")
+  safetyComplianceStatus  String   @default("Available") @map("safety_compliance_status") // Available, Suspended
+  activeStatus            String   @default("Available") @map("active_status") // Available, On Trip, Off Duty, Suspended
+  trips                   Trip[]
+
+  @@map("drivers")
+}
+
+model Trip {
+  id              Int       @id @default(autoincrement())
+  source          String
+  destination     String
+  vehicleId       Int       @map("vehicle_id")
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
+  driverId        Int       @map("driver_id")
+  driver          Driver    @relation(fields: [driverId], references: [id])
+  cargoWeight     Float     @map("cargo_weight")
+  plannedDistance Float     @map("planned_distance")
+  finalOdometer   Float?    @map("final_odometer") // Nullable until completed
+  fuelConsumed    Float?    @map("fuel_consumed")  // Nullable until completed
+  status          String    @default("Draft") // Draft, Dispatched, Completed, Cancelled
+  eta             String?
+  createdById     Int       @map("created_by_id")
+  createdBy       User      @relation("TripsCreated", fields: [createdById], references: [id])
+  expenses        Expense[]
+
+  @@map("trips")
+}
+
+model MaintenanceLog {
+  id          Int       @id @default(autoincrement())
+  vehicleId   Int       @map("vehicle_id")
+  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+  description String    // Labeled "Service" in mockup
+  cost        Float
+  startDate   DateTime  @default(now()) @map("start_date")
+  endDate     DateTime? @map("end_date")
+  status      String    @default("Active") // Active (In Shop), Completed (Available)
+
+  @@map("maintenance_logs")
+}
+
+model FuelLog {
+  id        Int      @id @default(autoincrement())
+  vehicleId Int      @map("vehicle_id")
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  liters    Float
+  cost      Float    // Fuel Cost
+  date      DateTime @default(now())
+
+  @@map("fuel_logs")
+}
+
+model Expense {
+  id                Int      @id @default(autoincrement())
+  tripId            Int      @map("trip_id")
+  trip              Trip     @relation(fields: [tripId], references: [id])
+  toll              Float    @default(0.0)
+  other             Float    @default(0.0)
+  maintenanceLinked Float    @default(0.0) @map("maintenance_linked")
+  total             Float    @default(0.0)
+  date              DateTime @default(now())
+
+  @@map("expenses")
+}
+
+model Settings {
+  id           Int    @id @default(1) // Singleton
+  depotName    String @default("Gandhinagar Depot") @map("depot_name")
+  currency     String @default("INR (Rs)")
+  distanceUnit String @default("Kilometers") @map("distance_unit")
+
+  @@map("settings")
+}
