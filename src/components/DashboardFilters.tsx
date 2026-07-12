@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SlidersHorizontal } from "lucide-react";
 
 export default function DashboardFilters() {
   const router = useRouter();
@@ -22,13 +23,13 @@ export default function DashboardFilters() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-4 bg-[#121214] p-4 rounded-xl border border-[#1a1a1e] mb-6">
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">Vehicle Type</label>
+    <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-[#0B0F19] p-4 rounded-2xl border border-slate-200 dark:border-[#1E293B] shadow-sm transition-colors mb-6">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-550">Vehicle Type</label>
         <select
           value={currentType}
           onChange={(e) => handleFilterChange("type", e.target.value)}
-          className="bg-[#1a1a1e] border border-[#26262b] text-zinc-200 text-sm rounded-lg h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-slate-50 dark:bg-zinc-900/50 border border-slate-250 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 text-xs rounded-xl h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer font-bold"
         >
           <option value="All">All Types</option>
           <option value="Van">Van</option>
@@ -37,12 +38,12 @@ export default function DashboardFilters() {
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">Status</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-550">Status</label>
         <select
           value={currentStatus}
           onChange={(e) => handleFilterChange("status", e.target.value)}
-          className="bg-[#1a1a1e] border border-[#26262b] text-zinc-200 text-sm rounded-lg h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-slate-50 dark:bg-zinc-900/50 border border-slate-255 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 text-xs rounded-xl h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer font-bold"
         >
           <option value="All">All Statuses</option>
           <option value="Available">Available</option>
@@ -52,12 +53,12 @@ export default function DashboardFilters() {
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">Region</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-550">Region</label>
         <select
           value={currentRegion}
           onChange={(e) => handleFilterChange("region", e.target.value)}
-          className="bg-[#1a1a1e] border border-[#26262b] text-zinc-200 text-sm rounded-lg h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-slate-50 dark:bg-zinc-900/50 border border-slate-255 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 text-xs rounded-xl h-10 px-3 min-w-[150px] focus:outline-none focus:border-blue-500 cursor-pointer font-bold"
         >
           <option value="All">All Regions</option>
           <option value="North">North</option>
@@ -69,7 +70,7 @@ export default function DashboardFilters() {
 
       <button
         onClick={() => router.push("/dashboard")}
-        className="mt-5 h-10 px-4 text-xs font-semibold text-zinc-400 hover:text-zinc-200 bg-[#1a1a1e] border border-[#26262b] rounded-lg transition"
+        className="mt-5 h-10 px-4 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 bg-slate-50 dark:bg-zinc-900/50 border border-slate-255 dark:border-zinc-800 rounded-xl transition cursor-pointer"
       >
         Clear Filters
       </button>

@@ -1,8 +1,23 @@
-export default function SettingsPage() {
+import React from "react";
+import { prisma } from "@/lib/db";
+import SidebarLayout from "@/components/SidebarLayout";
+import SettingsClient from "./SettingsClient";
+
+export const revalidate = 0; // Disable caching to fetch real-time settings configuration
+
+export default async function SettingsPage() {
+  // Query singleton settings
+  const settings = await prisma.settings.findFirst();
+
+  const settingsData = {
+    depotName: settings?.depotName || "Gandhinagar Depot GJ14",
+    currency: settings?.currency || "INR (Rs)",
+    distanceUnit: settings?.distanceUnit || "Kilometers",
+  };
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">SettingsPage Skeleton</h1>
-      <p className="text-gray-500">This folder is assigned for this feature.</p>
-    </div>
+    <SidebarLayout activeTab="settings">
+      <SettingsClient initialSettings={settingsData} />
+    </SidebarLayout>
   );
 }
