@@ -465,6 +465,7 @@ export default function ExpensesClient({
                     type="date"
                     name="date"
                     defaultValue={new Date().toISOString().split("T")[0]}
+                    max={new Date().toISOString().split("T")[0]}
                     className="w-full h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 text-xs text-slate-950 dark:text-zinc-100 focus:outline-none focus:border-blue-500 font-semibold"
                   />
                 </div>
@@ -565,6 +566,7 @@ export default function ExpensesClient({
                     type="date"
                     name="date"
                     defaultValue={new Date().toISOString().split("T")[0]}
+                    max={new Date().toISOString().split("T")[0]}
                     className="w-full h-10 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 text-xs text-slate-950 dark:text-zinc-100 focus:outline-none focus:border-blue-500 font-semibold"
                   />
                 </div>

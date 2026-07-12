@@ -21,6 +21,13 @@ export async function createMaintenanceLog(prevState: any, formData: FormData): 
   const vehicleId = parseInt(vehicleIdVal);
   const startDate = startDateVal ? new Date(startDateVal) : new Date();
 
+  // Block future dates
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (startDate > today) {
+    return { success: false, error: "Cannot schedule maintenance on a future date." };
+  }
+
   try {
     const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
     if (!vehicle) {

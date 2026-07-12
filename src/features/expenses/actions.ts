@@ -21,6 +21,13 @@ export async function createFuelLog(prevState: any, formData: FormData): Promise
   const vehicleId = parseInt(vehicleIdVal);
   const date = dateVal ? new Date(dateVal) : new Date();
 
+  // Block future dates
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (date > today) {
+    return { success: false, error: "Cannot log fuel receipt on a future date." };
+  }
+
   try {
     await prisma.fuelLog.create({
       data: {
@@ -54,6 +61,13 @@ export async function createExpenseLog(prevState: any, formData: FormData): Prom
   const tripId = parseInt(tripIdVal);
   const total = toll + other;
   const date = dateVal ? new Date(dateVal) : new Date();
+
+  // Block future dates
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (date > today) {
+    return { success: false, error: "Cannot log expense on a future date." };
+  }
 
   try {
     await prisma.expense.create({
